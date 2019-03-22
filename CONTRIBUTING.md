@@ -13,14 +13,13 @@ Merge requests will not be merged until they've been code reviewed by at least o
 Review will be by 2 engineers. @iainthegray will be one.
 Please select a reviewer from this list:
 
-Dan Brown @roooms
-Johnny Carlin @thejohnny
-Sean Carolan @scarolan
-Nicolas Corrarello @ncorrare
-Jeremiah Jenkins @jjenkins70
-Andrew Klaas @Andrew-Klaas
-Nathan Lacey @nathanl79
-Brian Shumate @brianshumate
+* Dan Brown @roooms
+* Johnny Carlin @thejohnny
+* Sean Carolan @scarolan
+* Jeremiah Jenkins @jjenkins70
+* Andrew Klaas @Andrew-Klaas
+* Nathan Lacey @nathanl79
+* Brian Shumate @brianshumate
 
 
 ## Linting and Formatting
