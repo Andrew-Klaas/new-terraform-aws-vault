@@ -16,6 +16,7 @@ Please select a reviewer from this list:
 * Dan Brown @roooms
 * Johnny Carlin @thejohnny
 * Sean Carolan @scarolan
+* Nicolas Corraello @ncorrare
 * Jeremiah Jenkins @jjenkins70
 * Andrew Klaas @Andrew-Klaas
 * Nathan Lacey @nathanl79
