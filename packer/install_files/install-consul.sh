@@ -1,7 +1,7 @@
 #!/bin/bash
-# This script is used to install Consul as a vault backend as per the deployment guide:
+# This script is used to install Consul as a Vault backend as per the deployment guide:
 # https://www.vaultproject.io/guides/operations/deployment-guide.html
-# It installs consul as a separate consul binary only to be used for vault storage
+# It installs Consul as a separate Consul binary only to be used for Vault storage
 
 # operating systems tested on:
 #
@@ -32,15 +32,15 @@ function print_usage {
   echo -e "  --install-bucket\t\tThe S3 location of a folder that contains all the install artifacts. Required"
   echo
   echo -e " one of the following 2 options:"
-  echo -e "  --consul-bin\t\t The name of the consul binary (zip) to install. (must be in the S3 bucket above) Required."
+  echo -e "  --consul-bin\t\t The name of the Consul binary (zip) to install. (must be in the S3 bucket above) Required."
   echo -e "or..."
-  echo -e "  --version\t\t The consul version required to be downloaded from Hashicorp Releases. Required."
+  echo -e "  --version\t\t The Consul version required to be downloaded from Hashicorp Releases. Required."
   echo
-  echo -e "  --client\t\t Should consul be a client. Args 1 or 0. Required"
+  echo -e "  --client\t\t Should Consul be a client. Args 1 or 0. Required"
   echo
-  echo -e "  --tag\t\t The Consul cluster tag vaslue that should be used for consul cluster joining."
+  echo -e "  --tag\t\t The Consul cluster tag vaslue that should be used for Consul cluster joining."
   echo
-  echo -e "  --cluster-size\t\t The expected number of servers in the consul cluster."
+  echo -e "  --cluster-size\t\t The expected number of servers in the Consul cluster."
   echo
   echo "This script can be used to install Consul as a backend to Vault. It has been tested with Ubuntu 18.04 and Centos 7."
   echo
@@ -154,7 +154,7 @@ ports {
 EOF
   if [[ $client -eq 0 ]]
   then
-    log "INFO" $func "Installing a consul server"
+    log "INFO" $func "Installing a Consul server"
     sudo cat << EOF >> ${TMP_DIR}/outy
 server = true
 bootstrap_expect = ${bs_exp}
@@ -162,7 +162,7 @@ ui = true
 EOF
 
   else
-    log "INFO" $func "Installing a consul client"
+    log "INFO" $func "Installing a Consul client"
   fi
 sudo cp ${TMP_DIR}/outy ${path}/$config
 sudo chmod 640 ${path}/$config
@@ -176,7 +176,7 @@ sudo chown -R "$username:$username" "$opt"
 
 function get_consul_binary {
   # if there is no version then we are going to get binary from S3
-  # else we download from consul site. This is set by type varaiable of 1 or 0
+  # else we download from Consul site. This is set by type varaiable of 1 or 0
   # if type == 1 then we get bin from S3
   #  else we get bin from download
 
@@ -189,7 +189,7 @@ function get_consul_binary {
   then
     ver="$bin"
     assert_not_empty "--version" $ver
-    log "INFO" $func "Copying consul version $ver binary to local"
+    log "INFO" $func "Copying Consul version $ver binary to local"
     cd $TMP_DIR
     curl -O https://releases.hashicorp.com/consul/${ver}/consul_${ver}_linux_386.zip
     curl -Os https://releases.hashicorp.com/consul/${ver}/consul_${ver}_SHA256SUMS
@@ -198,30 +198,30 @@ function get_consul_binary {
     ex_c=$?
     if [ $ex_c -ne 0 ]
     then
-      log "ERROR" $func "The copy of the consul binary failed"
+      log "ERROR" $func "The copy of the Consul binary failed"
       exit
     else
-      log "INFO" $func "Copy of consul binary successful"
+      log "INFO" $func "Copy of Consul binary successful"
     fi
     unzip -tqq ${TMP_DIR}/${zip}
     if [ $? -ne 0 ]
     then
-      log "ERROR" $func "Supplied consul binary is not a zip file"
+      log "ERROR" $func "Supplied Consul binary is not a zip file"
       exit
     fi
   else
     assert_not_empty "--consul-bin" "$bin"
-    log "INFO" $func "Copying consul binary from $ib to local"
+    log "INFO" $func "Copying Consul binary from $ib to local"
     log "INFO" $func "s3://${ib}/install_files/${bin}  ${TMP_DIR}/${zip}"
     aws s3 cp "s3://${ib}/install_files/${bin}" "${TMP_DIR}/${zip}"
     ex_c=$?
     log "INFO" $func "s3 copy exit code == $ex_c"
     if [ $ex_c -ne 0 ]
     then
-      log "ERROR" $func "The copy of the consul binary from ${ib}/${bin} failed"
+      log "ERROR" $func "The copy of the Consul binary from ${ib}/${bin} failed"
       exit
     else
-      log "INFO" $func "Copy of consul binary successful"
+      log "INFO" $func "Copy of Consul binary successful"
     fi
     unzip -tqq ${TMP_DIR}/${zip}
     if [ $? -ne 0 ]
@@ -334,7 +334,7 @@ function install {
   install_dependencies
   create_consul_user "$DEFAULT_CONSUL_USER"
   # if there is no version then we are going to get binary from S3
-  # else we download from consul site
+  # else we download from Consul site
   if [[ -z $version ]]
   then
     get_consul_binary "$cb" 1

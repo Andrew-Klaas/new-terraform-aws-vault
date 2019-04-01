@@ -194,7 +194,7 @@ resource "aws_security_group" "vault_cluster_int" {
 
 /*--------------------------------------------------------------
 Vault Cluster Internal Security Group Rules
-Note the consul ports are set to the 7xxx range to isolate the consul
+Note the Consul ports are set to the 7xxx range to isolate the Consul
 storage cluster
 --------------------------------------------------------------*/
 resource "aws_security_group_rule" "vault_cluster_allow_elb_820x_tcp" {
@@ -278,7 +278,7 @@ resource "aws_security_group_rule" "vault_cluster_allow_egress_all" {
 }
 
 /*------------------------------------------------------------------------------
- This is the IAM profile setup for the cluster servers to allow the consul
+ This is the IAM profile setup for the cluster servers to allow the Consul
  servers to join a cluster.
 ------------------------------------------------------------------------------*/
 resource "aws_iam_instance_profile" "cluster_server" {
@@ -299,7 +299,7 @@ resource "aws_iam_role_policy" "cluster_server" {
 }
 
 /*--------------------------------------------------------------
-S3 IAM Role and Policy to allow access to the userdata install files
+S3 IAM Role and Policy to allow access to the user data install files
 --------------------------------------------------------------*/
 resource "aws_iam_role_policy" "s3-access" {
   name   = "s3-access-install-${var.cluster_name}"
@@ -316,7 +316,7 @@ data "template_file" "s3_iam_policy" {
 }
 
 /*--------------------------------------------------------------
-KMS IAM Role and Policy to allow access to the KMS key from vault servers to
+KMS IAM Role and Policy to allow access to the KMS key from Vault servers to
 utilise auto-unseal
 --------------------------------------------------------------*/
 data "template_file" "vault_kms_unseal" {
@@ -336,7 +336,7 @@ resource "aws_iam_role_policy" "kms-access" {
 }
 
 /*--------------------------------------------------------------
-This is the set up of the userdata template file for the install
+This is the set up of the user data template file for the install
 --------------------------------------------------------------*/
 data "template_file" "vault_user_data" {
   template = "${file("${path.module}/provisioning/templates/vault_ud.tpl")}"

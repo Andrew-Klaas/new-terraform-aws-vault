@@ -28,13 +28,13 @@ function print_usage {
   echo -e "  --install-bucket\t\tThe S3 location of a folder that contains all the install artifacts. Required"
   echo
   echo -e " one of the following 2 options:"
-  echo -e "  --vault-bin\t\t The name of the vault binary (zip) to install. (must be in the S3 bucket above) Required."
+  echo -e "  --vault-bin\t\t The name of the Vault binary (zip) to install. (must be in the S3 bucket above) Required."
   echo -e "or..."
-  echo -e "  --version\t\t The vault version required to be downloaded from Hashicorp Releases. Required."
+  echo -e "  --version\t\t The Vault version required to be downloaded from Hashicorp Releases. Required."
   echo
-  echo -e "  --key\t\t The name of the private key file for vault TLS. (must be in the S3 bucket above). Required."
+  echo -e "  --key\t\t The name of the private key file for Vault TLS. (must be in the S3 bucket above). Required."
   echo
-  echo -e "  --cert\t\t The name of the cert file for vault TLS. (must be in the S3 bucket above). Required."
+  echo -e "  --cert\t\t The name of the cert file for Vault TLS. (must be in the S3 bucket above). Required."
   echo
   echo -e "  --api_addr\t\t The api_addr to use. This will be either the host or the URL of the loadbalancer. Required."
   echo
@@ -170,7 +170,7 @@ function get_vault_binary {
   then
     ver="$bin"
     assert_not_empty "--version" $ver
-    log "INFO" $func "Copying vault version $ver binary to local"
+    log "INFO" $func "Copying Vault version $ver binary to local"
     cd $TMP_DIR
     curl -O https://releases.hashicorp.com/vault/${ver}/vault_${ver}_linux_386.zip
     curl -Os https://releases.hashicorp.com/vault/${ver}/vault_${ver}_SHA256SUMS
@@ -178,29 +178,29 @@ function get_vault_binary {
     ret=`shasum -a 256 -c vault_${ver}_SHA256SUMS 2> /dev/null |grep vault_${ver}_linux_386.zip| grep OK | cut -d' ' -f2`
     if [ "$ret" != "OK" ]
     then
-      log "ERROR" $func "The copy of the vault binary failed"
+      log "ERROR" $func "The copy of the Vault binary failed"
       exit
     else
-      log "INFO" $func "Copy of vault binary successful"
+      log "INFO" $func "Copy of Vault binary successful"
     fi
     unzip -tqq ${TMP_DIR}/${zip}
     if [ $? -ne 0 ]
     then
-      log "ERROR" $func "Supplied vault binary is not a zip file"
+      log "ERROR" $func "Supplied Vault binary is not a zip file"
       exit
     fi
   else
     assert_not_empty "--vault-bin" "$bin"
-    log "INFO" $func "Copying vault binary from $ib to local"
+    log "INFO" $func "Copying Vault binary from $ib to local"
     log "INFO" $func "s3://${ib}/install_files/${bin}  ${TMP_DIR}/${zip}"
     aws s3 cp "s3://${ib}/install_files/${bin}" "${TMP_DIR}/${zip}"
     ex_c=$?
     if [ $ex_c -ne 0 ]
     then
-      log "ERROR" $func "The copy of the vault binary from ${ib}/${bin} failed"
+      log "ERROR" $func "The copy of the Vault binary from ${ib}/${bin} failed"
       exit
     else
-      log "INFO" $func "Copy of vault binary successful"
+      log "INFO" $func "Copy of Vault binary successful"
     fi
     unzip -tqq ${TMP_DIR}/${zip}
     if [ $? -ne 0 ]
@@ -364,7 +364,7 @@ function install {
   install_dependencies
   create_vault_user "$DEFAULT_VAULT_USER"
   # if there is no version then we are going to get binary from S3
-  # else we download from vault site
+  # else we download from Vault site
   if [[ -z $version ]]
   then
     get_vault_binary "$vb" 1

@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script is used to do the final config of vault and consul as per the
+# This script is used to do the final config of Vault and Consul as per the
 # deployment guide: https://www.vaultproject.io/guides/operations/deployment-guide.html
 
 
@@ -10,9 +10,9 @@ function print_usage {
   echo "Usage: final_config.sh [OPTIONS]"
   echo "Options:"
   echo
-  echo -e "  --consul-ips\t\t A comma separated string in \" no spaces of consul server IPs. Required"
+  echo -e "  --consul-ips\t\t A comma separated string in \" no spaces of Consul server IPs. Required"
   echo
-  echo -e "  --vault-ips\t\t A comma separated string in \" no spaces of vault server IPs. Required"
+  echo -e "  --vault-ips\t\t A comma separated string in \" no spaces of Vault server IPs. Required"
   echo
   echo -e "  --kms-key\t\t The id of the kms key if you are using auto-unseal"
   echo
@@ -53,11 +53,11 @@ function consul_action {
   local alive=0
   case "$action" in
     "start")
-      log "INFO" "${func}" "Starting consul server on $ip"
+      log "INFO" "${func}" "Starting Consul server on $ip"
       ssh -oStrictHostKeyChecking=no $ip sudo systemctl start consul-storage
       ;;
     "stop")
-      log "INFO" "${func}" "Stopping consul server on $ip"
+      log "INFO" "${func}" "Stopping Consul server on $ip"
       ssh -oStrictHostKeyChecking=no $ip sudo systemctl stop consul-storage
       ;;
     *)
@@ -107,7 +107,7 @@ function update_consul_hcl {
   local func="update_consul_hcl"
   local ip="$1"
   local at="$2"
-  log "INFO" "${func}" "updating consul HCL with Agent Token $at"
+  log "INFO" "${func}" "updating Consul HCL with Agent Token $at"
   ret=`ssh -oStrictHostKeyChecking=no $ip "bash ${TMP_DIR}/install-final.sh --update-consul-hcl $at"`
 }
 
@@ -115,7 +115,7 @@ function update_vault_hcl {
   local func="update_vault_hcl"
   local ip="$1"
   local vt="$2"
-  log "INFO" "${func}" "updating vault HCL"
+  log "INFO" "${func}" "updating Vault HCL"
   ret=`ssh -oStrictHostKeyChecking=no $ip "bash ${TMP_DIR}/install-final.sh --update-vault-hcl $vt"`
 }
 
@@ -123,7 +123,7 @@ function update_vault_api_addr {
   local func="update_vault_api_addr"
   local ip="$1"
   local ad="$2"
-  log "INFO" "${func}" "updating vault api_addr"
+  log "INFO" "${func}" "updating Vault api_addr"
   ret=`ssh -oStrictHostKeyChecking=no $ip "bash ${TMP_DIR}/install-final.sh --update-vault-api $ad"`
 }
 
@@ -132,7 +132,7 @@ function add_auto_unseal {
   local ip="$1"
   local key="$2"
   local reg="$3"
-  log "INFO" "${func}" "updating vault HCL"
+  log "INFO" "${func}" "updating Vault HCL"
   ret=`ssh -oStrictHostKeyChecking=no $ip "bash ${TMP_DIR}/install-final.sh --add-auto-unseal $key $reg"`
 }
 
@@ -202,19 +202,19 @@ function install {
   MT=''
   AT=''
   VT=''
-  log "INFO" $func "Installing to these consul servers $CONSUL_IPS"
-  log "INFO" $func "Installing to these vault servers $VAULT_IPS"
+  log "INFO" $func "Installing to these Consul servers $CONSUL_IPS"
+  log "INFO" $func "Installing to these Vault servers $VAULT_IPS"
   # copy the install files to the TMP_DIR
   for ip in `echo $CONSUL_IPS $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
   do
     copy_install_files "$ip"
   done
-  # remove the commenting from the ACL lines in consul
+  # remove the commenting from the ACL lines in Consul
   for ip in `echo $CONSUL_IPS $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
   do
     strip_acl_comments "$ip"
   done
-  # SSH to first consul server and start it
+  # SSH to first Consul server and start it
   for ip in `echo $CONSUL_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
   do
     consul_action start $ip
@@ -225,7 +225,7 @@ function install {
     log "INFO" "MAIN" "sleeping 5"
     consul_action start $ip
   done
-# SSH to first consul server and bootstrap ACL
+# SSH to first Consul server and bootstrap ACL
   log "INFO" "MAIN" "sleeping 5"
   sleep 5
   log "INFO" "MAIN" "sleeping 10"
@@ -242,26 +242,26 @@ function install {
     exit
     ;;
   esac
-  log "INFO" $func "Management token for consul = $MT"
+  log "INFO" $func "Management token for Consul = $MT"
   alive=`check_consul_up $consul_server $MT`
   log "INFO" $func "Consul servers alive = $alive"
-# SSH to first consul server and set agent Token
+# SSH to first Consul server and set agent Token
   AT=`set_agent_token "$consul_server" $MT`
-  log "INFO" $func "Agent token for consul = $AT"
-# SSH to all consul servers and agents and set agent Token
+  log "INFO" $func "Agent token for Consul = $AT"
+# SSH to all Consul servers and agents and set agent Token
   for ip in `echo $CONSUL_IPS $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
   do
     update_consul_hcl "$ip" "$AT"
   done
-# SSH to first consul server and set vault Token
+# SSH to first Consul server and set Vault Token
   VT=`set_vault_token $consul_server $MT`
-  log "INFO" $func "Vault token for consul = $VT"
-# SSH to all vault servers and set vault Token
+  log "INFO" $func "Vault token for Consul = $VT"
+# SSH to all Vault servers and set Vault Token
   for ip in `echo $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
   do
     update_vault_hcl "$ip" "$VT"
   done
-# SSH to all vault servers and set the api_addr IF using an ELB
+# SSH to all Vault servers and set the api_addr IF using an ELB
   if [ "X$ELB_DNS" != "X" ]
   then
     for ip in `echo $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
@@ -269,7 +269,7 @@ function install {
       update_vault_api_addr "$ip" "$ELB_DNS"
     done
   fi
-# SSH to first consul server and stop it
+# SSH to first Consul server and stop it
   for ip in `echo $CONSUL_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
   do
     consul_action "stop" "$ip"

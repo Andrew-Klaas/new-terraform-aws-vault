@@ -3,37 +3,37 @@ Configuration variables to determine the topology of
 the cluster
 ------------------------------------------------*/
 variable "use_asg" {
-  description = "a variable set to true or false depending on whether the vault cluster will be inside an ASG or not"
+  description = "a variable set to true or false depending on whether the Vault cluster will be inside an ASG or not"
   type        = "string"
   default     = false
 }
 
 variable "use_elb" {
-  description = "a variable set to true or false depending on whether the vault cluster will use an ELB or not"
+  description = "a variable set to true or false depending on whether the Vault cluster will use an ELB or not"
   type        = "string"
   default     = false
 }
 
 variable "use_nlb" {
-  description = "a variable set to true or false depending on whether the vault cluster will use an NLB or not"
+  description = "a variable set to true or false depending on whether the Vault cluster will use an NLB or not"
   type        = "string"
   default     = false
 }
 
 variable "use_userdata" {
-  description = "a variable set to true or false depending on whether the vault cluster will be configured using the userdata scripts or not"
+  description = "a variable set to true or false depending on whether the Vault cluster will be configured using the userdata scripts or not"
   type        = "string"
   default     = false
 }
 
 variable "internal_elb" {
-  description = "a variable set to true or false depending on whether the elb should be internal or not"
+  description = "a variable set to true or false depending on whether the ELB should be internal or not"
   type        = "string"
   default     = false
 }
 
 variable "use_auto_unseal" {
-  description = "a variable set to true or false depending on whether the vault cluster will be configured to use aws kms key to auto-unseal"
+  description = "a variable set to true or false depending on whether the Vault cluster will be configured to use aws kms key to auto-unseal"
   type        = "string"
   default     = false
 }
@@ -43,17 +43,17 @@ Vault Cluster Variables
 Variables that define the cluster instances
 ------------------------------------------------*/
 variable "cluster_name" {
-  description = "The name of the Vault cluster (e.g. vault-stage). This variable is used to namespace all resources created by this module."
+  description = "The name of the Vault cluster (e.g. Vault-stage). This variable is used to namespace all resources created by this module."
   type        = "string"
 }
 
 variable "vault_ami_id" {
-  description = "The ID of the AMI to run in this cluster for the vault servers."
+  description = "The ID of the AMI to run in this cluster for the Vault servers."
   type        = "string"
 }
 
 variable "consul_ami_id" {
-  description = "The ID of the AMI to run in this cluster for the consul servers."
+  description = "The ID of the AMI to run in this cluster for the Consul servers."
   type        = "string"
 }
 
@@ -63,12 +63,12 @@ variable "instance_type" {
 }
 
 variable "ssh_key_name" {
-  description = "The AWS ssh key to use to build instances in the vault cluster"
+  description = "The AWS ssh key to use to build instances in the Vault cluster"
   type        = "string"
 }
 
 variable "private_subnets" {
-  description = "A list private subnets the vault cluster will be deployed into"
+  description = "A list private subnets the Vault cluster will be deployed into"
   type        = "list"
 }
 
@@ -78,7 +78,7 @@ variable "public_subnets" {
 }
 
 variable "availability_zones" {
-  description = "A list AZs the vault cluster will be deployed into"
+  description = "A list AZs the Vault cluster will be deployed into"
   type        = "list"
 }
 
@@ -88,7 +88,7 @@ variable "vpc_id" {
 }
 
 variable "aws_region" {
-  description = "The region the vault cluster will be deployed in"
+  description = "The region the Vault cluster will be deployed in"
   type        = "string"
 }
 
@@ -104,7 +104,7 @@ variable "vault_cluster_size" {
 }
 
 variable "consul_cluster_size" {
-  description = "The size (number of instances) in the consul cluster"
+  description = "The size (number of instances) in the Consul cluster"
   type        = "string"
   default     = 5
 }
@@ -139,7 +139,7 @@ variable "termination_policies" {
 variables to manage ELB behaviour
 ------------------------------------------------*/
 variable "cross_zone_load_balancing" {
-  description = "Set to true to enable cross-zone load balancing and you have your vault cluster set up across multiple AZs as per the RA"
+  description = "Set to true to enable cross-zone load balancing and you have your Vault cluster set up across multiple AZs as per the RA"
   type        = "string"
   default     = true
 }
@@ -252,39 +252,39 @@ variable "key_pem" {
 }
 
 variable "consul_version" {
-  description = "The version of OSS consul to install. Must be in format of consul versioning. e.g. 1.3.1"
+  description = "The version of OSS Consul to install. Must be in format of Consul versioning. e.g. 1.3.1"
   type        = "string"
   default     = ""
 }
 
 variable "consul_bin" {
-  description = "The name of the consul binary in zip format in the S3 bucket install_files."
+  description = "The name of the Consul binary in zip format in the S3 bucket install_files."
   type        = "string"
   default     = ""
 }
 
 variable "vault_bin" {
-  description = "The name of the vault binary in zip format in the S3 bucket install_files."
+  description = "The name of the Vault binary in zip format in the S3 bucket install_files."
   type        = "string"
   default     = ""
 }
 
 variable "vault_version" {
-  description = "The version of OSS vault to install. Must be in format of vault versioning. e.g. 1.3.1"
+  description = "The version of OSS Vault to install. Must be in format of Vault versioning. e.g. 1.3.1"
   type        = "string"
   default     = ""
 }
 
 variable "cluster_tag" {
-  description = "The tag value for consul auto-join."
+  description = "The tag value for Consul auto-join."
   type        = "string"
   default     = "My_consul_cluster"
 }
 
-/* Aditional security group ids to add to the vault and consul cluster */
+/* Aditional security group ids to add to the Vault and Consul cluster */
 
 variable "additional_sg_ids" {
-  description = "A list of security groups to attach to instances in the vault cluster beyond the standard vault ones"
+  description = "A list of security groups to attach to instances in the Vault cluster beyond the standard Vault ones"
   type        = "list"
   default     = []
 }

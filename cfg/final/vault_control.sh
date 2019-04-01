@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script is used to do the final config of vault and consul as per the
+# This script is used to do the final config of Vault and Consul as per the
 # deployment guide: https://www.vaultproject.io/guides/operations/deployment-guide.html
 
 
@@ -10,9 +10,9 @@ function print_usage {
   echo "Usage: vault-control.sh [OPTIONS]"
   echo "Options:"
   echo
-  echo -e "  --consul-ips\t\t A comma separated string in \" no spaces of consul server IPs. Required"
+  echo -e "  --consul-ips\t\t A comma separated string in \" no spaces of Consul server IPs. Required"
   echo
-  echo -e "  --vault-ips\t\t A comma separated string in \" no spaces of vault server IPs. Required"
+  echo -e "  --vault-ips\t\t A comma separated string in \" no spaces of Vault server IPs. Required"
   echo
   echo -e "  --action\t\t One of start or stop. Required"
   echo
@@ -46,11 +46,11 @@ function consul_action {
   local alive=0
   case "$action" in
     "start")
-      log "INFO" "${func}" "Starting consul server on $ip"
+      log "INFO" "${func}" "Starting Consul server on $ip"
       ssh -oStrictHostKeyChecking=no $ip sudo systemctl start consul-storage
       ;;
     "stop")
-      log "INFO" "${func}" "Stopping consul server on $ip"
+      log "INFO" "${func}" "Stopping Consul server on $ip"
       ssh -oStrictHostKeyChecking=no $ip sudo systemctl stop consul-storage
       ;;
     *)
@@ -66,11 +66,11 @@ function vault_action {
   local alive=0
   case "$action" in
     "start")
-      log "INFO" "${func}" "Starting vault server on $ip"
+      log "INFO" "${func}" "Starting Vault server on $ip"
       ssh -oStrictHostKeyChecking=no $ip sudo systemctl start vault
       ;;
     "stop")
-      log "INFO" "${func}" "Stopping vault server on $ip"
+      log "INFO" "${func}" "Stopping Vault server on $ip"
       ssh -oStrictHostKeyChecking=no $ip sudo systemctl stop vault
       ;;
     *)

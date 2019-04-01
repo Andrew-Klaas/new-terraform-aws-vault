@@ -1,5 +1,5 @@
 #!/bin/bash
-# This script is used to do the final config of vault and consul as per the
+# This script is used to do the final config of Vault and Consul as per the
 # deployment guide: https://www.vaultproject.io/guides/operations/deployment-guide.html
 
 
