@@ -26,6 +26,7 @@ The module has these specifics that are configurable:
 * The Vault cluster can be set up to use AWS KMS key for auto unseal (something that is recommended if using an ASG)
 
 ## Versions
+This module is written for Terraform 11.10 and has been tested with this version only.
 This module has been tested with Ubuntu 18.04 and Centos 7.x OS
 This has been tested with Vault 1.x
 This has been tested with Consul 1.3.x. The configuration and user data setup will not work for Consul 1.4.x currently
