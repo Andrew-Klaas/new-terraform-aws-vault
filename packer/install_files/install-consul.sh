@@ -7,8 +7,10 @@
 #
 # 1. Ubuntu 18.04
 # https://aws.amazon.com/marketplace/pp/B07CQ33QKV
-# 1. Centos 7
+# 2. Centos 7
 # https://aws.amazon.com/marketplace/pp/B00O7WM7QW
+# 3. Amazon Linux 2
+#
 
 
 
@@ -60,23 +62,23 @@ function assert_not_empty {
   local -r arg_value="$2"
 
   if [[ -z "$arg_value" ]]; then
-    log "ERROR" "$func" "The value for '$arg_name' cannot be empty"
+    log "ERROR" "${func}" "The value for '${arg_name}' cannot be empty"
     print_usage
     exit 1
   fi
 }
 
 function has_yum {
-  [ -n "$(command -v yum)" ]
+  [[ -n "$(command -v yum)" ]]
 }
 
 function has_apt_get {
-  [ -n "$(command -v apt-get)" ]
+  [[ -n "$(command -v apt-get)" ]]
 }
 
 function install_dependencies {
   local func="install_dependencies"
-  log "INFO" $func "Installing dependencies"
+  log "INFO" ${func} "Installing dependencies"
 
   if $(has_apt_get); then
     sudo apt-get update -y
@@ -90,27 +92,29 @@ function install_dependencies {
     sudo yum install -y python-pip
     sudo pip install awscli
   else
-    log "ERROR" $func "Could not find apt-get or yum. Cannot install dependencies on this OS."
+    log "ERROR" ${func} "Could not find apt-get or yum. Cannot install dependencies on this OS."
     exit 1
   fi
 }
 
 function user_exists {
   local -r username="$1"
-  id "$username" >/dev/null 2>&1
+  id "${username}" >/dev/null 2>&1
 }
 
 function create_consul_user {
   local func="create_consul_user"
   local -r username="$1"
 
-  if $(user_exists "$username"); then
-    log "INFO" $func "User $username already exists. Will not create again."
+  if $(user_exists "${username}"); then
+    log "INFO" ${func} "User ${username} already exists. Will not create again."
   else
-    log "INFO" $func "Creating user named $username"
-    sudo useradd --system --home /etc/vault.d --shell /bin/false $username
+    log "INFO" ${func} "Creating user named ${username}"
+    sudo useradd --system --home /etc/vault.d --shell /bin/false ${username}
   fi
 }
+
+# This function creates the paths and sets up the consul HCL
 
 function create_consul_install_paths {
   local func="create_consul_install_paths"
@@ -121,14 +125,13 @@ function create_consul_install_paths {
   local -r client="$5"
   local -r tag_val="$6"
   local -r bs_exp="$7"
-  log "INFO" $func "path = $path username=$username config = $config opt = $opt client = $client tag_val = $tag_val bs = $bs_exp"
+  log "INFO" ${func} "path = ${path} username=${username} config = ${config} opt = ${opt} client = ${client} tag_val = ${tag_val} bs = ${bs_exp}"
 
-  log "INFO" $func "Creating install dirs for Consul at $path"
-  if [[ ! -d "$path" ]]
-  then
-    sudo mkdir -p "$path"
+  log "INFO" ${func} "Creating install dirs for Consul at ${path}"
+  if [[ ! -d "${path}" ]]; then
+    sudo mkdir -p "${path}"
   fi
-  sudo mkdir -p "$opt"
+  sudo mkdir -p "${opt}"
 
   sudo cat << EOF > ${TMP_DIR}/outy
 
@@ -152,8 +155,7 @@ ports {
 # acl_down_policy =  "extend-cache"
 # acl_agent_token = {{ acl_token }}
 EOF
-  if [[ $client -eq 0 ]]
-  then
+  if [[ ${client} -eq 0 ]]; then
     log "INFO" $func "Installing a Consul server"
     sudo cat << EOF >> ${TMP_DIR}/outy
 server = true
@@ -162,16 +164,15 @@ ui = true
 EOF
 
   else
-    log "INFO" $func "Installing a Consul client"
+    log "INFO" ${func} "Installing a Consul client"
   fi
-sudo cp ${TMP_DIR}/outy ${path}/$config
-sudo chmod 640 ${path}/$config
-log "INFO" $func "Changing ownership of $path to $username"
-if [[ $client -eq 0 ]]
-then
-  sudo chown -R "$username:$username" "$path"
+sudo cp ${TMP_DIR}/outy ${path}/${config}
+sudo chmod 640 ${path}/${config}
+log "INFO" $func "Changing ownership of ${path} to ${username}"
+if [[ ${client} -eq 0 ]]; then
+  sudo chown -R "${username}:${username}" "${path}"
 fi
-sudo chown -R "$username:$username" "$opt"
+sudo chown -R "${username}:${username}" "${opt}"
 }
 
 function get_consul_binary {
@@ -183,50 +184,45 @@ function get_consul_binary {
   local func="get_consul_binary"
   local -r bin="$1"
   local -r type="$2"
-  local -r zip="$TMP_ZIP"
-
-  if [[ $type != 1 ]] # get from download
-  then
-    ver="$bin"
-    assert_not_empty "--version" $ver
-    log "INFO" $func "Copying Consul version $ver binary to local"
-    cd $TMP_DIR
+  local -r zip="${TMP_ZIP}"
+  # get from download
+  if [[ ${type} != 1 ]]; then
+    ver="${bin}"
+    assert_not_empty "--version" ${ver}
+    log "INFO" ${func} "Copying Consul version ${ver} binary to local"
+    cd ${TMP_DIR}
     curl -O https://releases.hashicorp.com/consul/${ver}/consul_${ver}_linux_386.zip
     curl -Os https://releases.hashicorp.com/consul/${ver}/consul_${ver}_SHA256SUMS
     curl -Os https://releases.hashicorp.com/consul/${ver}/consul_${ver}_SHA256SUMS.sig
     shasum -a 256 -c consul_${ver}_SHA256SUMS 2> /dev/null |grep consul_${ver}_linux_386.zip| grep OK
     ex_c=$?
-    if [ $ex_c -ne 0 ]
-    then
-      log "ERROR" $func "The copy of the Consul binary failed"
+    if [[ ${ex_c} -ne 0 ]]; then
+      log "ERROR" ${func} "The copy of the Consul binary failed"
       exit
     else
-      log "INFO" $func "Copy of Consul binary successful"
+      log "INFO" ${func} "Copy of Consul binary successful"
     fi
     unzip -tqq ${TMP_DIR}/${zip}
-    if [ $? -ne 0 ]
-    then
-      log "ERROR" $func "Supplied Consul binary is not a zip file"
+    if [[ $? -ne 0 ]]; then
+      log "ERROR" ${func} "Supplied Consul binary is not a zip file"
       exit
     fi
   else
-    assert_not_empty "--consul-bin" "$bin"
-    log "INFO" $func "Copying Consul binary from $ib to local"
-    log "INFO" $func "s3://${ib}/install_files/${bin}  ${TMP_DIR}/${zip}"
+    assert_not_empty "--consul-bin" "${bin}"
+    log "INFO" ${func} "Copying Consul binary from ${ib} to local"
+    log "INFO" ${func} "s3://${ib}/install_files/${bin}  ${TMP_DIR}/${zip}"
     aws s3 cp "s3://${ib}/install_files/${bin}" "${TMP_DIR}/${zip}"
     ex_c=$?
-    log "INFO" $func "s3 copy exit code == $ex_c"
-    if [ $ex_c -ne 0 ]
-    then
-      log "ERROR" $func "The copy of the Consul binary from ${ib}/${bin} failed"
+    log "INFO" ${func} "s3 copy exit code == ${ex_c}"
+    if [[ ${ex_c} -ne 0 ]]; then
+      log "ERROR" ${func} "The copy of the Consul binary from ${ib}/${bin} failed"
       exit
     else
-      log "INFO" $func "Copy of Consul binary successful"
+      log "INFO" ${func} "Copy of Consul binary successful"
     fi
     unzip -tqq ${TMP_DIR}/${zip}
-    if [ $? -ne 0 ]
-    then
-      log "ERROR" $func "Supplied Consul binary is not a zip file"
+    if [[ $? -ne 0 ]]; then
+      log "ERROR" ${func} "Supplied Consul binary is not a zip file"
       exit
     fi
   fi
@@ -238,7 +234,7 @@ function install_consul {
   local -r tmp="$2"
   local -r zip="$3"
 
-  log "INFO" $func "Installing Consul"
+  log "INFO" ${func} "Installing Consul"
   cd ${tmp} && unzip -q ${zip}
   sudo chown root:root consul
   sudo cp consul ${loc}
@@ -248,7 +244,7 @@ function create_consul_service {
   local func="create_consul_service"
   local -r service="$1"
 
-  log "INFO" $func "Creating Consul service"
+  log "INFO" ${func} "Creating Consul service"
   cat <<EOF > /tmp/outy
   [Unit]
   Description="HashiCorp Consul - A service mesh solution"
@@ -270,21 +266,21 @@ function create_consul_service {
   WantedBy=multi-user.target
 EOF
 
-  sudo cp /tmp/outy $service
+  sudo cp /tmp/outy ${service}
   sudo systemctl enable ${DEFAULT_CONSUL_SERVICE_NAME}
 
 }
 
-function install {
-  local func="install"
-  sudo rm -rf $TMP_DIR
-  mkdir $TMP_DIR
+function main {
+  local func="main"
+  sudo rm -rf ${TMP_DIR}
+  mkdir ${TMP_DIR}
   version=""
   cb=""
   while [[ $# > 0 ]]; do
     local key="$1"
 
-    case "$key" in
+    case "${key}" in
       --help)
         print_usage
         exit
@@ -316,7 +312,7 @@ function install {
         shift
         ;;
       *)
-        log "ERROR" $func "Unrecognized argument: $key"
+        log "ERROR" ${func} "Unrecognized argument: ${key}"
         print_usage
         exit 1
         ;;
@@ -325,27 +321,26 @@ function install {
     shift
   done
 
-  assert_not_empty "--install-bucket" "$ib"
-  assert_not_empty "--tag" "$tag"
-  assert_not_empty "--cluster-size" "$siz"
-  assert_not_empty "--client" "$c"
+  assert_not_empty "--install-bucket" "${ib}"
+  assert_not_empty "--tag" "${tag}"
+  assert_not_empty "--cluster-size" "${siz}"
+  assert_not_empty "--client" "${c}"
 
-  log "INFO" $func "Starting Consul install"
+  log "INFO" ${func} "Starting Consul install"
   install_dependencies
-  create_consul_user "$DEFAULT_CONSUL_USER"
+  create_consul_user "${DEFAULT_CONSUL_USER}"
   # if there is no version then we are going to get binary from S3
   # else we download from Consul site
-  if [[ -z $version ]]
-  then
-    get_consul_binary "$cb" 1
+  if [[ -z ${version} ]]; then
+    get_consul_binary "${cb}" 1
   else
-    get_consul_binary "$version" 0
+    get_consul_binary "${version}" 0
   fi
-  install_consul "$DEFAULT_INSTALL_PATH" "$TMP_DIR" "$TMP_ZIP"
-  create_consul_install_paths "$DEFAULT_CONSUL_PATH" "$DEFAULT_CONSUL_USER" "$DEFAULT_CONSUL_CONFIG" "$DEFAULT_CONSUL_OPT" "$c" "$tag" "$siz"
-  create_consul_service "$DEFAULT_CONSUL_SERVICE"
-  log "INFO" $func "Consul install complete!"
-  sudo rm -rf $TMP_DIR
+  install_consul "${DEFAULT_INSTALL_PATH}" "${TMP_DIR}" "${TMP_ZIP}"
+  create_consul_install_paths "${DEFAULT_CONSUL_PATH}" "${DEFAULT_CONSUL_USER}" "${DEFAULT_CONSUL_CONFIG}" "${DEFAULT_CONSUL_OPT}" "${c}" "${tag}" "${siz}"
+  create_consul_service "${DEFAULT_CONSUL_SERVICE}"
+  log "INFO" ${func} "Consul install complete!"
+  sudo rm -rf ${TMP_DIR}
 }
 
-install "$@"
+main "$@"

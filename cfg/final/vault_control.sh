@@ -3,8 +3,6 @@
 # deployment guide: https://www.vaultproject.io/guides/operations/deployment-guide.html
 
 
-TMP_DIR="/tmp/ins"
-
 function print_usage {
   echo
   echo "Usage: vault-control.sh [OPTIONS]"
@@ -31,8 +29,8 @@ function assert_not_empty {
   local -r arg_name="$1"
   local -r arg_value="$2"
 
-  if [[ -z "$arg_value" ]]; then
-    log "ERROR" "$func" "The value for '$arg_name' cannot be empty"
+  if [[ -z "${arg_value}" ]]; then
+    log "ERROR" "${func}" "The value for '${arg_name}' cannot be empty"
     print_usage
     exit 1
   fi
@@ -42,19 +40,17 @@ function consul_action {
   local func="consul_action"
   local -r action="$1"
   local -r ip="$2"
-  local -r token="$3"
-  local alive=0
-  case "$action" in
+  case "${action}" in
     "start")
-      log "INFO" "${func}" "Starting Consul server on $ip"
-      ssh -oStrictHostKeyChecking=no $ip sudo systemctl start consul-storage
+      log "INFO" "${func}" "Starting Consul server on ${ip}"
+      ssh -oStrictHostKeyChecking=no "${ip}" sudo systemctl start consul-storage
       ;;
     "stop")
-      log "INFO" "${func}" "Stopping Consul server on $ip"
-      ssh -oStrictHostKeyChecking=no $ip sudo systemctl stop consul-storage
+      log "INFO" "${func}" "Stopping Consul server on ${ip}"
+      ssh -oStrictHostKeyChecking=no "${ip}" sudo systemctl stop consul-storage
       ;;
     *)
-      log "ERROR" $func "Unrecognized argument: $action"
+      log "ERROR" "${func}" "Unrecognized argument: ${action}"
       exit
     esac
 }
@@ -62,29 +58,27 @@ function vault_action {
   local func="vault_action"
   local -r action="$1"
   local -r ip="$2"
-  local -r token="$3"
-  local alive=0
-  case "$action" in
+  case "${action}" in
     "start")
-      log "INFO" "${func}" "Starting Vault server on $ip"
-      ssh -oStrictHostKeyChecking=no $ip sudo systemctl start vault
+      log "INFO" "${func}" "Starting Vault server on ${ip}"
+      ssh -oStrictHostKeyChecking=no "${ip}" sudo systemctl start vault
       ;;
     "stop")
-      log "INFO" "${func}" "Stopping Vault server on $ip"
-      ssh -oStrictHostKeyChecking=no $ip sudo systemctl stop vault
+      log "INFO" "${func}" "Stopping Vault server on ${ip}"
+      ssh -oStrictHostKeyChecking=no "${ip}" sudo systemctl stop vault
       ;;
     *)
-      log "ERROR" $func "Unrecognized argument: $action"
+      log "ERROR" "${func}" "Unrecognized argument: ${action}"
       exit
     esac
 }
 
-function run_it {
-  local func="run_it"
-  while [[ $# > 0 ]]; do
+function main {
+  local func="main"
+  while [[ $# -gt 0 ]]; do
     local key="$1"
 
-    case "$key" in
+    case "${key}" in
       --help)
         print_usage
         exit
@@ -102,7 +96,7 @@ function run_it {
         shift
         ;;
       *)
-        log "ERROR" $func "Unrecognized argument: $key"
+        log "ERROR" ${func} "Unrecognized argument: ${key}"
         print_usage
         exit 1
         ;;
@@ -111,29 +105,23 @@ function run_it {
     shift
   done
 
-  assert_not_empty "--consul-ips" "$CONSUL_IPS"
-  assert_not_empty "--vault-ips" "$VAULT_IPS"
-  assert_not_empty "--action" "$action"
+  assert_not_empty "--consul-ips" "${CONSUL_IPS}"
+  assert_not_empty "--vault-ips" "${VAULT_IPS}"
+  assert_not_empty "--action" "${action}"
 
-  if [[ "$action" == "start" ]]
-  then
-    for ip in `echo $CONSUL_IPS $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
-    do
-      consul_action "$action" "$ip"
+  if [[ "$action" == "start" ]]; then
+    for ip in `echo ${CONSUL_IPS} ${VAULT_IPS} | awk -F, '{for (i=1; i<=NF; i++) print $i}'`; do
+      consul_action "${action}" "${ip}"
     done
-    for ip in `echo $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
-    do
-      vault_action "$action" "$ip"
+    for ip in `echo ${VAULT_IPS} | awk -F, '{for (i=1; i<=NF; i++) print $i}'`; do
+      vault_action "${action}" "${ip}"
     done
-  elif [[ "$action" == "stop" ]]
-  then
-    for ip in `echo $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
-    do
-      vault_action "$action" "$ip"
+  elif [[ "$action" == "stop" ]]; then
+    for ip in `echo ${VAULT_IPS} | awk -F, '{for (i=1; i<=NF; i++) print $i}'`; do
+      vault_action "${action}" "${ip}"
     done
-    for ip in `echo $CONSUL_IPS $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`
-    do
-      consul_action "$action" "$ip"
+    for ip in `echo $CONSUL_IPS $VAULT_IPS | awk -F, '{for (i=1; i<=NF; i++) print $i}'`; do
+      consul_action "${action}" "${ip}"
     done
   else
     log "ERROR" "must supply one of start|stop"
@@ -141,4 +129,4 @@ function run_it {
   fi
 }
 
-run_it "$@"
+main "$@"
