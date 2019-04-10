@@ -40,7 +40,7 @@ function print_usage {
   echo
   echo -e "  --client\t\t Should Consul be a client. Args 1 or 0. Required"
   echo
-  echo -e "  --tag\t\t The Consul cluster tag vaslue that should be used for Consul cluster joining."
+  echo -e "  --tag\t\t The Consul cluster tag value that should be used for Consul cluster joining."
   echo
   echo -e "  --cluster-size\t\t The expected number of servers in the Consul cluster."
   echo
