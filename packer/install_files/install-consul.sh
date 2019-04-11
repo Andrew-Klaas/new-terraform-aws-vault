@@ -90,6 +90,7 @@ function install_dependencies {
     sudo yum install -y unzip jq
     sudo yum install -y epel-release
     sudo yum install -y python-pip
+    sudo yum install -y perl-Digest-SHA
     sudo pip install awscli
   else
     log "ERROR" ${func} "Could not find apt-get or yum. Cannot install dependencies on this OS."
