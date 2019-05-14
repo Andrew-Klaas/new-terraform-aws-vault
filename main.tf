@@ -45,8 +45,8 @@ resource "aws_instance" "consul-instance" {
   subnet_id                   = "${element(var.private_subnets, count.index)}"
 
   tags = {
-    Name               = "consul_server-${count.index}"
-    CONSUL_CLUSTER_TAG = "${var.cluster_tag}"
+    Name               = "consul_storage-${count.index}"
+    CONSUL_STORAGE_CLUSTER_TAG = "${var.cluster_tag}"
   }
 }
 
@@ -283,10 +283,10 @@ resource "aws_security_group_rule" "vault_cluster_allow_egress_all" {
 ------------------------------------------------------------------------------*/
 resource "aws_iam_instance_profile" "cluster_server" {
   name = "cluster-server-${var.cluster_name}"
-  role = "${aws_iam_role.cluster_server.name}"
+  role = "${aws_iam_role.cluster_server_role.name}"
 }
 
-resource "aws_iam_role" "cluster_server" {
+resource "aws_iam_role" "cluster_server_role" {
   name               = "cluster-server-${var.cluster_name}"
   path               = "/"
   assume_role_policy = "${file("${path.module}/provisioning/files/cluster-server-role.json")}"
@@ -294,7 +294,7 @@ resource "aws_iam_role" "cluster_server" {
 
 resource "aws_iam_role_policy" "cluster_server" {
   name   = "cluster-server-${var.cluster_name}"
-  role   = "${aws_iam_role.cluster_server.id}"
+  role   = "${aws_iam_role.cluster_server_role.id}"
   policy = "${file("${path.module}/provisioning/files/cluster-server-role-policy.json")}"
 }
 
@@ -303,7 +303,7 @@ S3 IAM Role and Policy to allow access to the user data install files
 --------------------------------------------------------------*/
 resource "aws_iam_role_policy" "s3-access" {
   name   = "s3-access-install-${var.cluster_name}"
-  role   = "${aws_iam_role.cluster_server.id}"
+  role   = "${aws_iam_role.cluster_server_role.id}"
   policy = "${data.template_file.s3_iam_policy.rendered}"
 }
 
@@ -331,7 +331,7 @@ data "template_file" "vault_kms_unseal" {
 resource "aws_iam_role_policy" "kms-access" {
   count  = "${(var.use_auto_unseal ? 1 : 0)}"
   name   = "kms-access-${var.cluster_name}"
-  role   = "${aws_iam_role.cluster_server.id}"
+  role   = "${aws_iam_role.cluster_server_role.id}"
   policy = "${data.template_file.vault_kms_unseal.rendered}"
 }
 

@@ -139,7 +139,7 @@ function create_consul_install_paths {
 datacenter = "dc1"
 data_dir = "${opt}"
 # encrypt = "{{ key from keygen }}"
-retry_join = ["provider=aws  tag_key=CONSUL_CLUSTER_TAG  tag_value=${tag_val}"]
+retry_join = ["provider=aws  tag_key=CONSUL_STORAGE_CLUSTER_TAG  tag_value=${tag_val}"]
 performance {
   raft_multiplier = 1
 }
