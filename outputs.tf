@@ -10,7 +10,7 @@ output "vault_cluster_instance_ips" {
 
 output "cluster_server_role" {
   description = "The role ID to attach policies to for the cluster instances"
-  value       = "${aws_iam_role.cluster_server.id}"
+  value       = "${aws_iam_role.cluster_server_role.id}"
 }
 
 output "consul_cluster_instance_ids" {
